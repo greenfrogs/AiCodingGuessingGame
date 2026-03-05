@@ -24,6 +24,29 @@ body {
   background: rgba(17, 24, 39, 0.75);
 }
 
+.feedback-card {
+  border-color: rgba(139, 152, 209, 0.35);
+  background: rgba(17, 24, 39, 0.42);
+}
+
+.feedback-inline-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.feedback-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.feedback-next-btn {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
 .diff-container .monaco-editor,
 .diff-container .monaco-editor-background {
   background: #0f162a !important;

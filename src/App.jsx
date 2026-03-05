@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Alert,
   Badge,
   Box,
   Button,
@@ -11,9 +12,17 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  ThemeIcon,
   Title
 } from "@mantine/core";
-import { IconArrowRight, IconCode, IconGitCompare } from "@tabler/icons-react";
+import {
+  IconArrowRight,
+  IconCircleCheckFilled,
+  IconCircleXFilled,
+  IconCode,
+  IconGitCompare,
+  IconTrophy
+} from "@tabler/icons-react";
 import Editor, { DiffEditor } from "@monaco-editor/react";
 import snippetsByChallenge from "../data/snippets.json";
 
@@ -22,6 +31,13 @@ const styleHints = {
   GPT: "Usually edge-case heavy with generalized internals.",
   Gemini: "Commonly direct and explanatory in naming flow.",
   Composer: "Tends to be concise and pragmatic."
+};
+
+const modelDisplayName = {
+  Claude: "Claude 4.6 Sonnet",
+  GPT: "GPT-5.2",
+  Gemini: "Gemini 3 Pro",
+  Composer: "Composer 1.5"
 };
 
 const agents = ["Claude", "GPT", "Gemini", "Composer"];
@@ -74,7 +90,11 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [locked, setLocked] = useState(false);
-  const [message, setMessage] = useState("Pick who wrote the LEFT snippet.");
+  const [feedback, setFeedback] = useState({
+    tone: "neutral",
+    title: "Ready",
+    message: "Pick who wrote the LEFT snippet."
+  });
 
   const current = rounds[index];
   const total = rounds.length;
@@ -89,14 +109,23 @@ export default function App() {
     if (correct) {
       setScore((v) => v + 1);
       setStreak((v) => v + 1);
-      setMessage(
-        `Correct. LEFT is ${current.leftAuthor}; RIGHT is ${current.rightAuthor}. Hint for ${current.leftAuthor}: ${styleHints[current.leftAuthor]}`
-      );
+      setFeedback({
+        tone: "correct",
+        title: "Correct",
+        message:
+          `LEFT: ${modelDisplayName[current.leftAuthor]} | RIGHT: ${modelDisplayName[current.rightAuthor]}. ` +
+          `Hint for ${modelDisplayName[current.leftAuthor]}: ${styleHints[current.leftAuthor]}`
+      });
     } else {
       setStreak(0);
-      setMessage(
-        `Not quite. LEFT is ${current.leftAuthor}; RIGHT is ${current.rightAuthor}. Hint for ${current.leftAuthor}: ${styleHints[current.leftAuthor]} | Hint for ${current.rightAuthor}: ${styleHints[current.rightAuthor]}`
-      );
+      setFeedback({
+        tone: "wrong",
+        title: "Not quite",
+        message:
+          `LEFT: ${modelDisplayName[current.leftAuthor]} | RIGHT: ${modelDisplayName[current.rightAuthor]}. ` +
+          `Hint for ${modelDisplayName[current.leftAuthor]}: ${styleHints[current.leftAuthor]} | ` +
+          `Hint for ${modelDisplayName[current.rightAuthor]}: ${styleHints[current.rightAuthor]}`
+      });
     }
   }
 
@@ -111,11 +140,19 @@ export default function App() {
       else if (finalPct >= 60) rank = "Prompt Detective";
       setIndex(total);
       setLocked(true);
-      setMessage(`Final score: ${score}/${total} (${finalPct}%). Title: ${rank}.`);
+      setFeedback({
+        tone: "final",
+        title: `Final Result: ${rank}`,
+        message: `You scored ${score}/${total} (${finalPct}%).`
+      });
     } else {
       setIndex(next);
       setLocked(false);
-      setMessage("Pick who wrote the LEFT snippet.");
+      setFeedback({
+        tone: "neutral",
+        title: "Next Round",
+        message: "Pick who wrote the LEFT snippet."
+      });
     }
   }
 
@@ -125,19 +162,37 @@ export default function App() {
     setScore(0);
     setStreak(0);
     setLocked(false);
-    setMessage("Pick who wrote the LEFT snippet.");
+    setFeedback({
+      tone: "neutral",
+      title: "Ready",
+      message: "Pick who wrote the LEFT snippet."
+    });
   }
 
   if (done) {
+    const pct = Math.round((score / total) * 100);
+    let rank = "Getting Warm";
+    if (pct === 100) rank = "AI Whisperer";
+    else if (pct >= 80) rank = "Model Sleuth";
+    else if (pct >= 60) rank = "Prompt Detective";
     return (
       <Container size={1200} py="xl">
         <Card withBorder p="xl" radius="lg" className="shell-card">
-          <Stack align="center" gap="md">
-            <Group gap="xs">
-              <IconCode size={22} />
-              <Title order={2}>AI Code Guessing Game</Title>
+          <Stack align="center" gap="lg">
+            <ThemeIcon size={56} radius="xl" variant="light" color="yellow">
+              <IconTrophy size={30} />
+            </ThemeIcon>
+            <Group gap="xs" justify="center">
+              <Title order={2}>Game Complete</Title>
             </Group>
-            <Text c="dimmed">{message}</Text>
+            <Badge size="lg" color="grape" variant="light">{rank}</Badge>
+            <Group gap="sm">
+              <Badge size="xl" variant="light" color="cyan">{`Score ${score}/${total}`}</Badge>
+              <Badge size="xl" variant="light" color="teal">{`Accuracy ${pct}%`}</Badge>
+            </Group>
+            <Text c="dimmed" ta="center">
+              Nice run. You can replay with a new random set of 5 challenges.
+            </Text>
             <Button onClick={resetGame} size="md" rightSection={<IconArrowRight size={16} />}>
               Play Again
             </Button>
@@ -177,22 +232,34 @@ export default function App() {
                 disabled={locked}
                 onClick={() => handleGuess(name)}
               >
-                {name}
+                {modelDisplayName[name]}
               </Button>
             ))}
           </SimpleGrid>
 
-          <Card withBorder radius="md" p="sm">
-            <Group justify="space-between" align="center" wrap="wrap">
-              <Text size="sm">{message}</Text>
+          <Card withBorder radius="md" p="sm" className="feedback-card">
+            <Box className="feedback-inline-row">
+              <Group gap="xs" align="center" className="feedback-copy">
+                {feedback.tone === "correct" && <IconCircleCheckFilled size={18} color="#40c057" />}
+                {feedback.tone === "wrong" && <IconCircleXFilled size={18} color="#fa5252" />}
+                <div>
+                  <Text fw={700} size="sm">
+                    {feedback.title}
+                  </Text>
+                  <Text size="sm" c="dimmed" lineClamp={2}>
+                    {feedback.message}
+                  </Text>
+                </div>
+              </Group>
               <Button
+                className="feedback-next-btn"
                 disabled={!locked}
                 onClick={handleNext}
                 rightSection={<IconArrowRight size={16} />}
               >
                 Next Matchup
               </Button>
-            </Group>
+            </Box>
           </Card>
 
           <Grid gutter="md">
@@ -201,7 +268,7 @@ export default function App() {
                 <Group justify="space-between" px="sm" py={8} className="editor-header">
                   <Text fw={600}>Left Snippet</Text>
                   {locked ? (
-                    <Badge size="sm" color="indigo" variant="light">{current.leftAuthor}</Badge>
+                    <Badge size="sm" color="indigo" variant="light">{modelDisplayName[current.leftAuthor]}</Badge>
                   ) : (
                     <Badge size="sm" color="gray" variant="light">Hidden</Badge>
                   )}
@@ -227,7 +294,7 @@ export default function App() {
                 <Group justify="space-between" px="sm" py={8} className="editor-header">
                   <Text fw={600}>Right Snippet</Text>
                   {locked ? (
-                    <Badge size="sm" color="teal" variant="light">{current.rightAuthor}</Badge>
+                    <Badge size="sm" color="teal" variant="light">{modelDisplayName[current.rightAuthor]}</Badge>
                   ) : (
                     <Badge size="sm" color="gray" variant="light">Hidden</Badge>
                   )}
