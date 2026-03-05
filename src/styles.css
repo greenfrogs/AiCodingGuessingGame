@@ -1,0 +1,30 @@
+html, body, #root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(64, 87, 190, 0.24), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(85, 37, 130, 0.22), transparent 55%),
+    #0b1020;
+}
+
+.shell-card {
+  background: linear-gradient(180deg, rgba(19, 26, 52, 0.86), rgba(11, 16, 32, 0.9));
+  backdrop-filter: blur(8px);
+}
+
+.editor-card {
+  overflow: hidden;
+}
+
+.editor-header {
+  border-bottom: 1px solid rgba(139, 152, 209, 0.25);
+  background: rgba(17, 24, 39, 0.75);
+}
+
+.diff-container .monaco-editor,
+.diff-container .monaco-editor-background {
+  background: #0f162a !important;
+}
