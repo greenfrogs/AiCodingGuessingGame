@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "snippets:generate": "node ./scripts/generate-snippets.mjs",
+    "snippets:validate": "node ./scripts/validate-snippets.mjs",
+    "snippets:refresh": "node ./scripts/validate-snippets.mjs --source generated --write"
   },
   "keywords": [],
   "author": "",

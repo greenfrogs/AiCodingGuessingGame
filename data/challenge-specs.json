@@ -1,0 +1,196 @@
+[
+  {
+    "id": "clone",
+    "label": "Deep clone with circular references",
+    "language": "javascript",
+    "entrypoint": "deepClone(value, seen = new WeakMap())",
+    "requiredIdentifiers": [
+      "deepClone",
+      "WeakMap"
+    ],
+    "maxLines": 35,
+    "forbiddenPatterns": [
+      "```",
+      "class ",
+      "console.log",
+      "export default",
+      "module.exports",
+      "import "
+    ],
+    "rules": {
+      "requireEntrypointName": "deepClone",
+      "allowTopLevelImports": false,
+      "allowTestBlocks": false
+    },
+    "minLines": 10
+  },
+  {
+    "id": "factors",
+    "label": "Prime factors using a sieve",
+    "language": "python",
+    "entrypoint": "prime_factors(n)",
+    "requiredIdentifiers": [
+      "prime_factors"
+    ],
+    "maxLines": 35,
+    "forbiddenPatterns": [
+      "```",
+      "if __name__ ==",
+      "print(",
+      "class ",
+      "def test_"
+    ],
+    "rules": {
+      "requireEntrypointName": "prime_factors",
+      "allowTopLevelImports": true,
+      "allowTestBlocks": false
+    },
+    "minLines": 8
+  },
+  {
+    "id": "debounce",
+    "label": "Debounced async function rejecting stale calls",
+    "language": "typescript",
+    "entrypoint": "debounceAsync(fn, delay)",
+    "requiredIdentifiers": [
+      "debounceAsync",
+      "stale",
+      "setTimeout"
+    ],
+    "maxLines": 40,
+    "forbiddenPatterns": [
+      "```",
+      "class ",
+      "console.log",
+      "describe(",
+      "it("
+    ],
+    "rules": {
+      "requireEntrypointName": "debounceAsync",
+      "allowTopLevelImports": false,
+      "allowTestBlocks": false
+    },
+    "minLines": 16
+  },
+  {
+    "id": "lru",
+    "label": "Compact LRU cache core",
+    "language": "rust",
+    "entrypoint": "struct LruCache",
+    "requiredIdentifiers": [
+      "LruCache",
+      "get"
+    ],
+    "maxLines": 55,
+    "forbiddenPatterns": [
+      "```",
+      "#[cfg(test)]",
+      "fn main(",
+      "println!"
+    ],
+    "rules": {
+      "requireEntrypointName": "LruCache",
+      "allowTopLevelImports": true,
+      "allowTestBlocks": false
+    },
+    "minLines": 14
+  },
+  {
+    "id": "stream_window",
+    "label": "Shortest covering substring via sliding window",
+    "language": "javascript",
+    "entrypoint": "minWindow(s, t)",
+    "requiredIdentifiers": [
+      "minWindow"
+    ],
+    "maxLines": 35,
+    "forbiddenPatterns": [
+      "```",
+      "class ",
+      "console.log",
+      "export default",
+      "module.exports",
+      "import "
+    ],
+    "rules": {
+      "requireEntrypointName": "minWindow",
+      "allowTopLevelImports": false,
+      "allowTestBlocks": false
+    },
+    "minLines": 12
+  },
+  {
+    "id": "retry_backoff",
+    "label": "Async fetch retry with exponential backoff + jitter",
+    "language": "python",
+    "entrypoint": "fetch_with_retry(fetch, attempts=4)",
+    "requiredIdentifiers": [
+      "fetch_with_retry",
+      "async",
+      "await"
+    ],
+    "maxLines": 35,
+    "forbiddenPatterns": [
+      "```",
+      "if __name__ ==",
+      "print(",
+      "class ",
+      "def test_"
+    ],
+    "rules": {
+      "requireEntrypointName": "fetch_with_retry",
+      "allowTopLevelImports": true,
+      "allowTestBlocks": false
+    },
+    "minLines": 10
+  },
+  {
+    "id": "task_queue",
+    "label": "Concurrency-limited async FIFO task queue",
+    "language": "typescript",
+    "entrypoint": "class AsyncQueue",
+    "requiredIdentifiers": [
+      "AsyncQueue",
+      "add",
+      "concurrency"
+    ],
+    "maxLines": 55,
+    "forbiddenPatterns": [
+      "```",
+      "describe(",
+      "it(",
+      "console.log"
+    ],
+    "rules": {
+      "requireEntrypointName": "AsyncQueue",
+      "allowTopLevelImports": false,
+      "allowTestBlocks": false
+    },
+    "minLines": 20
+  },
+  {
+    "id": "trie_prefix",
+    "label": "Trie with insert, contains, and starts_with",
+    "language": "rust",
+    "entrypoint": "struct Trie",
+    "requiredIdentifiers": [
+      "Trie",
+      "insert",
+      "contains",
+      "starts_with"
+    ],
+    "maxLines": 55,
+    "forbiddenPatterns": [
+      "```",
+      "#[cfg(test)]",
+      "fn main(",
+      "println!"
+    ],
+    "rules": {
+      "requireEntrypointName": "Trie",
+      "allowTopLevelImports": true,
+      "allowTestBlocks": false
+    },
+    "minLines": 24
+  }
+]
