@@ -1,16 +1,16 @@
 def prime_factors(n):
     if n < 2:
         return []
-    spf = list(range(n + 1))
-    i = 2
-    while i * i <= n:
-        if spf[i] == i:
-            for j in range(i * i, n + 1, i):
-                if spf[j] == j:
-                    spf[j] = i
-        i += 1
+    limit = n + 1
+    smallest_prime = list(range(limit))
+    for i in range(2, int(limit**0.5) + 1):
+        if smallest_prime[i] == i:
+            for j in range(i * i, limit, i):
+                if smallest_prime[j] == j:
+                    smallest_prime[j] = i
     factors = []
     while n > 1:
-        factors.append(spf[n])
-        n //= spf[n]
+        p = smallest_prime[n]
+        factors.append(p)
+        n //= p
     return factors

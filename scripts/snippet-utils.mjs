@@ -2,10 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 export const MODEL_MAP = {
-  Claude: ["sonnet-4.6-thinking", "sonnet-4.5"],
-  GPT: "gpt-5.2",
-  Gemini: ["gemini-3-pro", "gemini-3.1-pro"],
-  Composer: "composer-1.5"
+  GPT53CodexHigh: ["gpt-5.3-codex-high", "gpt-5.3-codex"],
+  Claude46OpusHigh: ["opus-4.6-thinking", "opus-4.6", "sonnet-4.6-thinking"],
+  Gemini31ProThinking: ["gemini-3.1-pro", "gemini-3-pro"],
+  Gemini3FlashThinking: ["gemini-3-flash"]
 };
 
 export const AGENTS = Object.keys(MODEL_MAP);
@@ -111,7 +111,12 @@ export function cleanSnippet(raw) {
     .replace(/^\s*```[a-zA-Z0-9_-]*\s*$/gm, "")
     .trim();
 
-  if (stripped) return stripped;
+  const hasCodeStart = (text) =>
+    /(?:^|\n)\s*(?:export\s+)?(?:function|const|class|def|async def|use|pub struct|struct|impl)\b/m.test(
+      text
+    );
+
+  if (stripped && hasCodeStart(stripped)) return stripped;
 
   const probable = normalized
     .split("\n")
@@ -120,7 +125,16 @@ export function cleanSnippet(raw) {
     )
     .join("\n")
     .trim();
-  return probable;
+  if (probable && hasCodeStart(probable)) return probable;
+
+  const lines = normalized.split("\n");
+  const start = lines.findIndex((line) =>
+    /^(?:\s*(?:export\s+)?(?:function|const|class|def|async def|use|pub struct|struct|impl)\b)/.test(line)
+  );
+  if (start >= 0) {
+    return lines.slice(start).join("\n").trim();
+  }
+  return stripped || normalized;
 }
 
 export function normalizeSnippet(spec, code) {

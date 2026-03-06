@@ -1,32 +1,29 @@
-function debounceAsync<T>(fn: (...args: unknown[]) => Promise<T>, delay: number) {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  let lastCallId = 0;
+export function debounceAsync<T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  let callId = 0;
 
-  return function (...args: unknown[]): Promise<T> {
-    const callId = ++lastCallId;
-
-    if (timeoutId !== null) {
-      clearTimeout(timeoutId);
-    }
+  return function(...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> {
+    clearTimeout(timeoutId);
+    const currentId = ++callId;
 
     return new Promise((resolve, reject) => {
       timeoutId = setTimeout(async () => {
-        timeoutId = null;
+        if (currentId !== callId) {
+          const stale = new Error("Call is stale");
+          return reject(stale);
+        }
         try {
           const result = await fn(...args);
-          const stale = callId !== lastCallId;
-          if (stale) {
-            reject(new Error("Stale"));
-          } else {
-            resolve(result);
+          if (currentId !== callId) {
+            const stale = new Error("Call is stale");
+            return reject(stale);
           }
-        } catch (err) {
-          const stale = callId !== lastCallId;
-          if (stale) {
-            reject(new Error("Stale"));
-          } else {
-            reject(err);
-          }
+          resolve(result);
+        } catch (error) {
+          reject(error);
         }
       }, delay);
     });

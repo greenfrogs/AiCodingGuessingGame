@@ -16,6 +16,12 @@ const projectRoot = resolveProjectRoot();
 const specsPath = path.join(projectRoot, "data", "challenge-specs.json");
 const snippetsPath = path.join(projectRoot, "data", "snippets.json");
 const generatedDir = path.join(projectRoot, "generated");
+const LEGACY_AGENT_FALLBACK = {
+  GPT53CodexHigh: ["GPT"],
+  Claude46OpusHigh: ["Claude"],
+  Gemini31ProThinking: ["Gemini"],
+  Gemini3FlashThinking: ["Composer", "Gemini"]
+};
 
 function runCursorOnce(prompt, model) {
   return new Promise((resolve, reject) => {
@@ -135,38 +141,44 @@ async function main() {
           attempt <= Math.ceil(retries / 2)
             ? buildPrompt(spec, violationSummary)
             : buildFallbackPrompt(spec, violationSummary);
-        let raw = "";
         let runError;
+        let bestFailure = "";
         for (const model of models) {
           try {
-            raw = await runCursor(prompt, model);
-            runError = undefined;
-            break;
+            const raw = await runCursor(prompt, model);
+            const cleaned = cleanSnippet(raw);
+            const code = normalizeSnippet(spec, cleaned);
+            if (!code.trim()) {
+              bestFailure = "empty output";
+              continue;
+            }
+            const result = validateSnippet(spec, code);
+            if (result.passed) {
+              successCode = code;
+              runError = undefined;
+              break;
+            }
+            bestFailure = result.failures.map((f) => `${f.code} (${f.detail})`).join("; ");
           } catch (error) {
             runError = error;
           }
         }
-        if (!raw) {
-          const message = String(runError?.message || "generation error");
-          violationSummary = `generation_error (${message.slice(0, 240)})`;
-          continue;
-        }
-        const cleaned = cleanSnippet(raw);
-        const code = normalizeSnippet(spec, cleaned);
-        if (!code.trim()) {
-          violationSummary = "empty output";
-          continue;
-        }
-        const result = validateSnippet(spec, code);
-        if (result.passed) {
-          successCode = code;
+        if (successCode) {
           break;
         }
-        violationSummary = result.failures.map((f) => `${f.code} (${f.detail})`).join("; ");
+        if (runError) {
+          const message = String(runError?.message || "generation error");
+          violationSummary = `generation_error (${message.slice(0, 240)})`;
+        } else {
+          violationSummary = bestFailure || "validation failed";
+        }
       }
 
       if (!successCode) {
-        const fallbackRaw = existingMap.get(spec.id)?.answers?.[agent];
+        const fallbackNames = [agent, ...(LEGACY_AGENT_FALLBACK[agent] || [])];
+        const fallbackRaw = fallbackNames
+          .map((name) => existingMap.get(spec.id)?.answers?.[name])
+          .find(Boolean);
         const fallback = fallbackRaw ? normalizeSnippet(spec, cleanSnippet(fallbackRaw)) : "";
         const fallbackResult = fallback ? validateSnippet(spec, fallback) : { passed: false };
         if (fallbackResult.passed) {

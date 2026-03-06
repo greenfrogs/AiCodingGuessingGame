@@ -27,20 +27,25 @@ import Editor, { DiffEditor } from "@monaco-editor/react";
 import snippetsByChallenge from "../data/snippets.json";
 
 const styleHints = {
-  Claude: "Often strongly structured and polished.",
-  GPT: "Usually edge-case heavy with generalized internals.",
-  Gemini: "Commonly direct and explanatory in naming flow.",
-  Composer: "Tends to be concise and pragmatic."
+  GPT53CodexHigh: "Usually edge-case heavy with generalized internals.",
+  Claude46OpusHigh: "Often strongly structured and polished.",
+  Gemini31ProThinking: "Commonly direct and explanatory in naming flow.",
+  Gemini3FlashThinking: "Tends to be concise and pragmatic."
 };
 
 const modelDisplayName = {
-  Claude: "Claude 4.6 Sonnet",
-  GPT: "GPT-5.2",
-  Gemini: "Gemini 3 Pro",
-  Composer: "Composer 1.5"
+  GPT53CodexHigh: "GPT 5.3 Codex (high thinking)",
+  Claude46OpusHigh: "Claude 4.6 Opus (high thinking)",
+  Gemini31ProThinking: "Gemini 3.1 Pro (thinking)",
+  Gemini3FlashThinking: "Gemini 3 Flash (thinking)"
 };
 
-const agents = ["Claude", "GPT", "Gemini", "Composer"];
+const agents = [
+  "GPT53CodexHigh",
+  "Claude46OpusHigh",
+  "Gemini31ProThinking",
+  "Gemini3FlashThinking"
+];
 const CHALLENGES_PER_GAME = 5;
 
 function shuffle(arr) {
